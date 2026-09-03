@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Random Attention</title>
+<meta name="description" content="Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning — keep the prompt, evict the rest at random. Accuracy matches learned evictors; serving is 32–43% faster.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#FBFAF7; --panel:#F3F1EA; --ink:#1B2730; --muted:#5E6B76;
+  --blue:#275A7A; --lblue:#65A9D7; --red:#C7423F;
+  --cellghost:#c9cfd4; --line:#DDD9CE; --codebg:#20303C; --codeink:#DCE7EE;
+  --serif:"Source Serif 4",Georgia,serif;
+  --sans:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A1F; --panel:#1C242B; --ink:#E8EAEC; --muted:#9AA7B0;
+    --blue:#7FB3D3; --lblue:#65A9D7; --red:#E06B67;
+    --cellghost:#3A454E; --line:#2C3841; --codebg:#0F171D; --codeink:#C9D6DE;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A1F; --panel:#1C242B; --ink:#E8EAEC; --muted:#9AA7B0;
+  --blue:#7FB3D3; --lblue:#65A9D7; --red:#E06B67;
+  --cellghost:#3A454E; --line:#2C3841; --codebg:#0F171D; --codeink:#C9D6DE;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--blue)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--lblue);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:0 22px}
+.prose{max-width:760px;margin:0 auto}
+header.hero{padding:64px 0 8px;text-align:center}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,5.4vw,52px);
+   line-height:1.12;margin:0 0 6px;text-wrap:balance}
+.subtitle{font-family:var(--serif);font-weight:600;font-size:clamp(19px,2.6vw,25px);
+   color:var(--blue);margin:0 0 22px;text-wrap:balance}
+.authors{font-size:18px;margin:0 0 4px}
+.affil{color:var(--muted);font-size:15.5px;margin:0 0 26px}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:999px;
+     font-weight:600;font-size:15.5px;border:1.5px solid var(--blue);color:var(--blue)}
+.btn:hover{background:var(--blue);color:var(--bg);border-bottom-color:transparent}
+.btn.solid{background:var(--blue);color:var(--bg)}
+.btn.solid:hover{opacity:.88}
+.btn.soon{border-color:var(--line);color:var(--muted);cursor:default;pointer-events:none}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+         color:var(--red);margin:0 0 6px}
+section{margin:58px 0}
+h2{font-family:var(--serif);font-weight:700;font-size:29px;line-height:1.2;
+   margin:0 0 14px;text-wrap:balance}
+p{margin:0 0 16px}
+.tldr{background:var(--panel);border-left:4px solid var(--blue);border-radius:0 10px 10px 0;
+      padding:20px 26px;margin:34px auto 0;max-width:760px}
+.tldr b.k{color:var(--blue)}
+.tldr ul{margin:8px 0 0;padding-left:20px}
+.tldr li{margin-bottom:8px}
+.tldr li::marker{color:var(--red)}
+figure{margin:26px 0 8px}
+.fig{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow-x:auto}
+.fig img{display:block;max-width:100%;min-width:520px;margin:0 auto}
+figcaption{font-size:14.5px;color:var(--muted);line-height:1.55;margin:10px auto 0;max-width:760px}
+.diagram{margin:44px 0 6px}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram text{font-family:var(--sans)}
+.pull{font-family:var(--serif);font-size:21px;line-height:1.5;color:var(--blue);
+      border-left:3px solid var(--red);padding:2px 0 2px 20px;margin:22px 0}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0 6px}
+.stat{background:var(--panel);border-radius:10px;padding:16px 18px;text-align:center}
+.stat .n{font-family:var(--serif);font-weight:700;font-size:30px;color:var(--red);
+         font-variant-numeric:tabular-nums;line-height:1.15}
+.stat .l{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.4}
+pre{background:var(--codebg);color:var(--codeink);border-radius:10px;padding:18px 22px;
+    overflow-x:auto;font-family:var(--mono);font-size:14px;line-height:1.6;margin:18px 0}
+code{font-family:var(--mono)}
+p code, li code{background:var(--panel);padding:1px 6px;border-radius:5px;font-size:.92em}
+.comment{color:#7d97a8}
+footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
+       color:var(--muted);font-size:14.5px;text-align:center}
+@media (max-width:640px){
+  .statrow{grid-template-columns:1fr}
+  header.hero{padding-top:44px}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1>Random Attention</h1>
+  <p class="subtitle">Rethinking KV Cache Eviction for Efficient Reasoning</p>
+  <!-- TODO: full author list & links -->
+  <p class="authors">Heng Wang</p>
+  <p class="affil">Salesforce AI Research &middot; University of Illinois Urbana-Champaign</p>
+  <div class="btns">
+    <span class="btn soon" aria-disabled="true">&#128196; arXiv (soon)</span>
+    <a class="btn solid" href="https://github.com/SalesforceAIResearch/Random-Attention">&#11088; Code</a>
+    <a class="btn" href="#bibtex">BibTeX</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="tldr">
+  <b class="k">TL;DR</b> — Every KV cache eviction method scores cached tokens and keeps the top-K.
+  We replace the score with a coin flip: <b>keep the prompt, evict the rest uniformly at random
+  within each attention head.</b>
+  <ul>
+    <li>Across four reasoning models and six tasks, it <b>matches the strongest prior evictor</b>
+        — and is significantly ahead in 31 of 60 main-table comparisons, behind in one.</li>
+    <li>It never runs a scoring pass, so in vLLM serving it delivers
+        <b>32&ndash;43% more tokens per second</b> than the strongest baseline at 32k-token generations.</li>
+    <li>Why it works: <b>the prompt is the fragile part of the cache</b>, and
+        <b>the reasoning trace protects itself</b> — restated in the text, copied across heads.</li>
+  </ul>
+</div>
+
+<figure class="diagram" aria-label="Score-based eviction versus Random Attention">
+<svg viewBox="0 0 1160 330" role="img">
+  <!-- ===================== LEFT: score-based ===================== -->
+  <text x="45" y="30" font-size="19" font-weight="700" fill="var(--ink)" font-family="var(--serif)">Score-based eviction</text>
+  <text x="45" y="52" font-size="13.5" fill="var(--muted)">H2O &middot; SnapKV &middot; R-KV &middot; VaSE &middot; TriAttention</text>
+
+  <!-- scoring pass box -->
+  <rect x="150" y="72" width="266" height="46" rx="8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <text x="283" y="91" font-size="13.5" font-weight="700" fill="var(--blue)" text-anchor="middle">scoring pass, every eviction</text>
+  <text x="283" y="108" font-size="12" fill="var(--muted)" text-anchor="middle">attention stats &middot; value norms &middot; key statistics</text>
+  <line x1="215" y1="118" x2="215" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <line x1="283" y1="118" x2="283" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <line x1="351" y1="118" x2="351" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <defs>
+    <marker id="arr" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--blue)"/>
+    </marker>
+    <marker id="arrR" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--red)"/>
+    </marker>
+  </defs>
+
+  <!-- cache row: 4 prompt + 10 generated, x = 45 + i*34, w=30 h=34 y=152 -->
+  <!-- prompt cells: kept idx0,2 / EVICTED idx1,3 -->
+  <rect x="45"  y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="79"  y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="94"  y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+  <rect x="113" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".55"/>
+  <rect x="147" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="162" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+  <!-- generated cells, heat-shaded by score; ~half evicted -->
+  <rect x="181" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".35"/>
+  <rect x="215" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="230" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+  <rect x="249" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".75"/>
+  <rect x="283" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".25"/>
+  <rect x="317" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="332" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+  <rect x="351" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".6"/>
+  <rect x="385" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="400" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+  <rect x="419" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".9"/>
+  <rect x="453" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".4"/>
+  <rect x="487" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="502" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
+
+  <!-- group labels under row -->
+  <path d="M45 196 v6 h132 v-6" fill="none" stroke="var(--muted)" stroke-width="1.1"/>
+  <text x="111" y="218" font-size="12.5" fill="var(--muted)" text-anchor="middle">prompt (the question)</text>
+  <path d="M181 196 v6 h336 v-6" fill="none" stroke="var(--muted)" stroke-width="1.1"/>
+  <text x="349" y="218" font-size="12.5" fill="var(--muted)" text-anchor="middle">generated reasoning trace &middot; kept if score in top-K</text>
+
+  <!-- callout -->
+  <text x="45" y="253" font-size="13.5" font-weight="600" fill="var(--red)">nothing pins the question &mdash; low-scoring prompt</text>
+  <text x="45" y="271" font-size="13.5" font-weight="600" fill="var(--red)">tokens are evicted, and they cannot be re-derived</text>
+  <line x1="112" y1="238" x2="96" y2="192" stroke="var(--red)" stroke-width="1.2" marker-end="url(#arrR)"/>
+  <text x="45" y="305" font-size="13" fill="var(--muted)">cost: score every cached token at every eviction event</text>
+
+  <!-- divider -->
+  <line x1="578" y1="24" x2="578" y2="306" stroke="var(--line)" stroke-width="1.4"/>
+
+  <!-- ===================== RIGHT: Random Attention ===================== -->
+  <text x="635" y="30" font-size="19" font-weight="700" fill="var(--red)" font-family="var(--serif)">Random Attention (ours)</text>
+  <text x="635" y="52" font-size="13.5" fill="var(--muted)">no scores, no calibration &mdash; two structural rules</text>
+
+  <!-- rule 1: bracket over prompt columns -->
+  <path d="M635 80 v-6 h132 v6" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <text x="701" y="66" font-size="12.5" font-weight="700" fill="var(--blue)" text-anchor="middle">1&#8202;&middot;&#8202;always keep the prompt</text>
+  <path d="M771 80 v-6 h336 v6" fill="none" stroke="var(--red)" stroke-width="1.4"/>
+  <text x="939" y="66" font-size="12.5" font-weight="700" fill="var(--red)" text-anchor="middle">2&#8202;&middot;&#8202;sample the trace uniformly at random, per head</text>
+
+  <!-- three head rows: x = 635 + i*34, w=30 h=28; rows y = 92 / 130 / 168 -->
+  <!-- head 1: keep gen {0,2,3,6,9} -->
+  <rect x="635" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="669" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="703" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="737" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="771" y="92" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="805" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="839" y="92" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="873" y="92" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="907" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="941" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="975" y="92" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="1009" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="1043" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="1077" y="92" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <text x="1118" y="111" font-size="12.5" fill="var(--muted)">head 1</text>
+  <!-- head 2: keep gen {1,2,5,7,8} -->
+  <rect x="635" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="669" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="703" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="737" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="771" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="805" y="130" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="839" y="130" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="873" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="907" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="941" y="130" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="975" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="1009" y="130" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="1043" y="130" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="1077" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="1118" y="149" font-size="12.5" fill="var(--muted)">head 2</text>
+  <!-- head 3: keep gen {0,4,5,6,8} -->
+  <rect x="635" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="669" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="703" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="737" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="771" y="168" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="805" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="839" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="873" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="907" y="168" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="941" y="168" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="975" y="168" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="1009" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="1043" y="168" width="30" height="28" rx="5" fill="var(--red)" opacity=".9"/>
+  <rect x="1077" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="1118" y="187" font-size="12.5" fill="var(--muted)">head 3</text>
+
+  <!-- callouts -->
+  <text x="635" y="253" font-size="13.5" font-weight="600" fill="var(--ink)">each head keeps a different random subset, so a copy of</text>
+  <text x="635" y="271" font-size="13.5" font-weight="600" fill="var(--ink)">what the model still needs survives in some head</text>
+  <text x="635" y="305" font-size="13" fill="var(--muted)">cost: none &mdash; no scoring pass, just the compaction itself</text>
+</svg>
+<figcaption><b>Prior evictors vs. Random Attention.</b> Left: every existing method runs a scoring
+pass and keeps the top-K tokens; the question itself competes for survival, and once a prompt token
+is evicted it cannot be re-derived. Right: Random Attention pins the prompt and samples the
+generated trace uniformly at random, independently in each KV head — no scores are ever computed,
+and the per-head draws leave redundant copies of the trace in the cache.</figcaption>
+</figure>
+
+<section class="prose" id="result">
+  <p class="eyebrow">The result</p>
+  <h2>A coin flip matches five generations of selection signals</h2>
+  <p>We evaluate at a roughly 4&times;-compressed cache budget on MATH500, GPQA-Diamond, AIME 2025,
+  AIME 2026, HMMT and LiveCodeBench, on Qwen3-4B/14B/32B and Phi-4-reasoning, with matched budgets
+  and paired significance tests throughout. Random Attention matches the strongest prior evictor on
+  every model, is significantly ahead of a baseline in 31 of the 60 main-table comparisons, and is
+  significantly behind in exactly one (code reasoning on Qwen3-32B, explained below).</p>
+  <figure>
+    <div class="fig"><img src="assets/fig_overview.png" alt="Overview: accuracy bars for four models and serving throughput"></div>
+    <figcaption><b>(a)</b> Mean accuracy over the six tasks: Random Attention (red) vs. SnapKV, R-KV,
+    VaSE and TriAttention at the same cache budget, with full attention dashed.
+    <b>(b)</b> vLLM serving throughput at 32k-token generations: labels give the multiple over paged
+    full attention and the margin over TriAttention.</figcaption>
+  </figure>
+</section>
+
+<section class="prose" id="prompt">
+  <p class="eyebrow">Mechanism I</p>
+  <h2>The prompt is the fragile part of the cache</h2>
+  <p>Prior evictors differ in whether the question survives: some pin the prompt by rule, others
+  let their score decide. When we give <em>every</em> method the same rule — keep the prompt,
+  score only the generated trace — most of the gap between them disappears, and each method gains
+  almost exactly as much as its score had been losing of the question. SnapKV, the weakest
+  unprotected baseline, gains up to <b>+35 accuracy points</b> from prompt protection alone.</p>
+  <p class="pull">What separates eviction methods is mostly what they protect,
+  not how they rank the rest.</p>
+</section>
+
+<section class="prose" id="redundancy">
+  <p class="eyebrow">Mechanism II</p>
+  <h2>The reasoning trace protects itself</h2>
+  <p>Why does random eviction of the trace not hurt? Because the trace is stored redundantly at two
+  levels. In the <em>text</em>: the model restates the intermediates it still needs as it works, so
+  a needed value usually has a recent copy. Across <em>attention heads</em>: every head holds its
+  own copy of every token, and eviction decides per head which copies die. A planted-fact probe
+  makes the second level visible: a fact surviving in a single KV head is almost never retrieved
+  (3% of the time), while the same fact surviving in several heads is retrieved almost always
+  (99% with all heads) — and the <em>shape</em> of the surviving copies barely matters.</p>
+  <figure>
+    <div class="fig"><img src="assets/fig_mechanism.png" alt="Planted-fact probe: copies in different heads pool"></div>
+    <figcaption>The planted-fact probe. <b>(a)</b> Retrieval accuracy grows with the number of heads
+    holding the fact, from 0.03 (one head) to 0.99 (all eight). <b>(b)</b> Two facts held in different
+    heads are both recovered more often than the sum of either alone. <b>(c)</b> On real MATH500
+    traces, evicting in contiguous blocks of 1&ndash;64 tokens changes nothing: the draw's shape is free.</figcaption>
+  </figure>
+</section>
+
+<section class="prose" id="boundary">
+  <p class="eyebrow">The boundary</p>
+  <h2>Where a selection signal still matters</h2>
+  <p>The redundancy argument predicts its own failure modes, and we map them. Push compression from
+  4&times; to 16&times; and the regime flips: on MATH500 Random Attention collapses with the context
+  while value-based selection still holds usable accuracy. And on code reasoning, prompts are so
+  long that protecting them consumes most of the budget — the one setting where a baseline
+  (TriAttention) is significantly ahead. Selection earns its cost exactly where rehearsal and
+  redundancy run out: extreme budgets, and the rare fact stated once and never restated.</p>
+  <figure>
+    <div class="fig"><img src="assets/fig_compression.png" alt="Accuracy vs compression factor, 2x to 16x"></div>
+    <figcaption>Accuracy vs. compression on Qwen3-4B and Phi-4-reasoning. The methods are
+    indistinguishable at 2&ndash;4&times;; the spread opens only at 8&ndash;16&times;.</figcaption>
+  </figure>
+</section>
+
+<section class="prose" id="serving">
+  <p class="eyebrow">Serving</p>
+  <h2>No scoring pass means real speed</h2>
+  <p>Random Attention needs no calibration, no tuning, and no per-step scoring. Integrated into
+  vLLM, it serves 32&ndash;43% more tokens per second than the strongest baseline at 32k-token
+  generations, and up to 28.8&times; the throughput of full attention at the tightest budget
+  (K=1024) — while matching the baseline's accuracy. It is also the baseline any new selection
+  signal has to beat, at matched budget and matched prompt protection.</p>
+  <div class="statrow">
+    <div class="stat"><div class="n">+32&ndash;43%</div><div class="l">tokens/s over the strongest baseline (vLLM, 32k generations)</div></div>
+    <div class="stat"><div class="n">28.8&times;</div><div class="l">peak throughput multiple over full attention (K=1024)</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">scores computed, calibration passes, tuned hyperparameters</div></div>
+  </div>
+</section>
+
+<section class="prose" id="useit">
+  <p class="eyebrow">Use it</p>
+  <h2>Try it on your own model</h2>
+  <p>The <a href="https://github.com/SalesforceAIResearch/Random-Attention">repository</a> contains
+  the eviction engine (every method in the paper as an eviction mode), the evaluation harness, the
+  paired significance tests, the efficiency benchmarks and the vLLM port.</p>
+<pre><code>git clone https://github.com/SalesforceAIResearch/Random-Attention &amp;&amp; cd Random-Attention
+bash setup.sh &amp;&amp; . env.sh
+
+<span class="comment"># one (model, task, method, budget) accuracy cell</span>
+scripts/run_cell.sh Qwen3-4B math random_pp   <span class="comment"># Random Attention, K defaults to the ~4x point</span>
+scripts/run_cell.sh Qwen3-4B math triattn     <span class="comment"># strongest baseline, per-model calibration</span>
+scripts/grade_cell.sh Qwen3-4B math</code></pre>
+</section>
+
+<section class="prose" id="bibtex">
+  <p class="eyebrow">Citation</p>
+  <h2>BibTeX</h2>
+<pre><code>@article{wang2026random,
+  title   = {Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning},
+  author  = {Wang, Heng and others},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</code></pre>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">Random Attention &middot; Salesforce AI Research &middot; 2026</div>
+</footer>
+
+</body>
+</html>
