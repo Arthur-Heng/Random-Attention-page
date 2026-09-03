@@ -56,7 +56,7 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,5.4vw,52px);
 .btn.solid{background:var(--blue);color:var(--bg)}
 .btn.solid:hover{opacity:.88}
 .btn.soon{border-color:var(--line);color:var(--muted);cursor:default;pointer-events:none}
-.eyebrow{font-size:15.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+.eyebrow{font-size:17px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
          color:var(--red);margin:0 0 6px}
 section{margin:58px 0}
 h2{font-family:var(--serif);font-weight:700;font-size:29px;line-height:1.2;
@@ -474,6 +474,28 @@ per-head draws leave redundant copies of the trace in the cache.</figcaption>
     <div class="stat"><div class="n">28.8&times;</div><div class="l">full-attention multiple, iso-memory benchmark (K=1024)</div></div>
     <div class="stat"><div class="n">0</div><div class="l">scores computed, calibration passes, tuned hyperparameters</div></div>
   </div>
+</section>
+
+<section class="prose" id="implications">
+  <p class="eyebrow">Implications &amp; future work</p>
+  <h2>What this changes for eviction research</h2>
+  <p>Two practical implications follow. First, <b>Random Attention is a deployable method in its
+  own right</b>: it needs no calibration, no tuning and no scoring pass, and it is the fastest
+  evictor we measured at equal accuracy — a reasonable default for serving reasoning models under
+  a memory budget, and the baseline any new selection signal has to beat at matched budget and
+  matched prompt protection. Second, <b>the findings redirect what eviction research should
+  optimise</b>: the accuracy of an evictor is decided by what it protects, not by how it ranks
+  the rest.</p>
+  <p>That moves the open questions to where protection still matters:</p>
+  <ul>
+    <li><b>Budgeting long prompts.</b> On code reasoning, pinning the whole prompt consumes a
+    large share of the cache budget, yet much of a code prompt is scaffolding (I/O formats,
+    harness instructions) that a smarter rule might compress rather than pin whole. We leave this
+    to future work, since Random Attention's value as a null lies in having nothing to tune.</li>
+    <li><b>Recovering rare once-stated facts.</b> A fact stated once, never restated, and needed
+    much later is the one case only a content-dependent signal can preserve — real selection
+    skill, but one that current aggregate benchmarks neither reward nor measure.</li>
+  </ul>
 </section>
 
 <section class="prose" id="useit">
