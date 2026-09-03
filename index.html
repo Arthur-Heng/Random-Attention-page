@@ -13,6 +13,7 @@
   --bg:#FBFAF7; --panel:#F3F1EA; --ink:#1B2730; --muted:#5E6B76;
   --blue:#275A7A; --lblue:#65A9D7; --red:#C7423F;
   --cellghost:#c9cfd4; --line:#DDD9CE; --codebg:#20303C; --codeink:#DCE7EE;
+  --oursbg:#F7ECE9; --modelbg:#EFEDE5;
   --serif:"Source Serif 4",Georgia,serif;
   --sans:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -22,12 +23,14 @@
     --bg:#141A1F; --panel:#1C242B; --ink:#E8EAEC; --muted:#9AA7B0;
     --blue:#7FB3D3; --lblue:#65A9D7; --red:#E06B67;
     --cellghost:#3A454E; --line:#2C3841; --codebg:#0F171D; --codeink:#C9D6DE;
+    --oursbg:#2B2220; --modelbg:#222B32;
   }
 }
 :root[data-theme="dark"]{
   --bg:#141A1F; --panel:#1C242B; --ink:#E8EAEC; --muted:#9AA7B0;
   --blue:#7FB3D3; --lblue:#65A9D7; --red:#E06B67;
   --cellghost:#3A454E; --line:#2C3841; --codebg:#0F171D; --codeink:#C9D6DE;
+  --oursbg:#2B2220; --modelbg:#222B32;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -44,6 +47,7 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,5.4vw,52px);
 .subtitle{font-family:var(--serif);font-weight:600;font-size:clamp(19px,2.6vw,25px);
    color:var(--blue);margin:0 0 22px;text-wrap:balance}
 .authors{font-size:18px;margin:0 0 4px}
+.authors .au{white-space:nowrap}
 .affil{color:var(--muted);font-size:15.5px;margin:0 0 26px}
 .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:999px;
@@ -68,6 +72,19 @@ figure{margin:26px 0 8px}
 .fig{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow-x:auto}
 .fig img{display:block;max-width:100%;min-width:520px;margin:0 auto}
 figcaption{font-size:14.5px;color:var(--muted);line-height:1.55;margin:10px auto 0;max-width:760px}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.mt{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;
+         font-variant-numeric:tabular-nums;line-height:1.45}
+.mt th,.mt td{padding:6px 12px;text-align:center}
+.mt th:first-child,.mt td:first-child{text-align:left;padding-left:16px}
+.mt thead th{border-bottom:1.5px solid var(--ink);font-weight:700}
+.mt th .k{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.mt tr.model td{background:var(--modelbg);font-weight:700;text-align:left;padding-left:16px}
+.mt tr.dense td{color:var(--muted)}
+.mt tr.dense td{border-bottom:1px solid var(--line)}
+.mt tr.ours td{background:var(--oursbg);font-weight:600}
+.mt td.bb{font-weight:700}
+.mt td.sb,figcaption .sb{color:var(--muted);opacity:.75}
 .diagram{margin:44px 0 6px}
 .diagram svg{display:block;width:100%;height:auto}
 .diagram text{font-family:var(--sans)}
@@ -97,9 +114,9 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
 <header class="hero wrap">
   <h1>Random Attention</h1>
   <p class="subtitle">Rethinking KV Cache Eviction for Efficient Reasoning</p>
-  <p class="authors">Heng Wang<sup>1,2</sup>, Jielin Qiu<sup>1</sup>, Wenting Zhao<sup>1</sup>,
-  Cheng Qian<sup>1,2</sup>, Liangwei Yang<sup>1</sup>, Jiawei Han<sup>2</sup>, Heng Ji<sup>2</sup>,
-  Silvio Savarese<sup>1</sup>, Shelby Heinecke<sup>1</sup>, Huan Wang<sup>1</sup></p>
+  <p class="authors"><span class="au">Heng Wang<sup>1,2</sup></span>, <span class="au">Jielin Qiu<sup>1</sup></span>, <span class="au">Wenting Zhao<sup>1</sup></span>,
+  <span class="au">Cheng Qian<sup>1,2</sup></span>, <span class="au">Liangwei Yang<sup>1</sup></span>, <span class="au">Jiawei Han<sup>2</sup></span>, <span class="au">Heng Ji<sup>2</sup></span>,
+  <span class="au">Silvio Savarese<sup>1</sup></span>, <span class="au">Shelby Heinecke<sup>1</sup></span>, <span class="au">Huan Wang<sup>1</sup></span></p>
   <p class="affil"><sup>1</sup>Salesforce AI Research &middot; <sup>2</sup>University of Illinois Urbana-Champaign</p>
   <div class="btns">
     <span class="btn soon" aria-disabled="true">&#128196; arXiv (soon)</span>
@@ -338,6 +355,43 @@ per-head draws leave redundant copies of the trace in the cache.</figcaption>
     VaSE and TriAttention at the same cache budget, with full attention dashed.
     <b>(b)</b> vLLM serving throughput at 32k-token generations: labels give the multiple over paged
     full attention and the margin over TriAttention.</figcaption>
+  </figure>
+  <figure id="maintable">
+    <div class="tblwrap"><table class="mt">
+      <thead><tr><th></th><th>MATH500<span class="k">K=1024</span></th><th>GPQA-D<span class="k">K=2048</span></th><th>AIME<span class="k">K=4096</span></th><th>HMMT<span class="k">K=4096</span></th><th>LCB<span class="k">K=3072</span></th></tr></thead>
+      <tbody>
+      <tr class="model"><td colspan="6">Qwen3-4B</td></tr>
+      <tr class="dense"><td>Full attention</td><td>0.939</td><td>0.562</td><td>0.642</td><td>0.462</td><td>0.807</td></tr>
+      <tr class=""><td>SnapKV</td><td class="sb">0.703</td><td class="sb">0.369</td><td class="sb">0.418</td><td class="sb">0.395</td><td class="sb">0.507</td></tr>
+      <tr class=""><td>R-KV</td><td class="sb">0.810</td><td class="sb">0.482</td><td class="sb">0.494</td><td class="sb">0.371</td><td class="sb">0.712</td></tr>
+      <tr class=""><td>VaSE</td><td class="sb">0.809</td><td class="sb">0.461</td><td>0.596</td><td>0.421</td><td class="sb">0.700</td></tr>
+      <tr class=""><td>TriAttention</td><td>0.864</td><td class="bb">0.533</td><td>0.592</td><td>0.437</td><td class="bb">0.755</td></tr>
+      <tr class="ours"><td>Random Attention (ours)</td><td class="bb">0.874</td><td>0.530</td><td class="bb">0.610</td><td class="bb">0.438</td><td>0.744</td></tr>
+      </tbody>
+      <tbody>
+      <tr class="model"><td colspan="6">Phi-4-reasoning</td></tr>
+      <tr class="dense"><td>Full attention</td><td>0.922</td><td>0.707</td><td>0.677</td><td>0.444</td><td>0.697</td></tr>
+      <tr class=""><td>SnapKV</td><td class="sb">0.844</td><td class="sb">0.442</td><td class="sb">0.502</td><td class="sb">0.343</td><td class="sb">0.314</td></tr>
+      <tr class=""><td>R-KV</td><td>0.909</td><td>0.636</td><td>0.643</td><td class="bb">0.440</td><td class="sb">0.621</td></tr>
+      <tr class=""><td>VaSE</td><td class="sb">0.853</td><td class="sb">0.562</td><td class="sb">0.520</td><td class="sb">0.354</td><td class="sb">0.373</td></tr>
+      <tr class=""><td>TriAttention</td><td>0.891</td><td class="bb">0.684</td><td>0.633</td><td>0.431</td><td>0.652</td></tr>
+      <tr class="ours"><td>Random Attention (ours)</td><td class="bb">0.910</td><td>0.678</td><td class="bb">0.662</td><td>0.430</td><td class="bb">0.667</td></tr>
+      </tbody>
+      <tbody>
+      <tr class="model"><td colspan="6">Qwen3-32B</td></tr>
+      <tr class="dense"><td>Full attention</td><td>0.950</td><td>0.703</td><td>0.715</td><td>0.559</td><td>0.886</td></tr>
+      <tr class=""><td>SnapKV</td><td class="sb">0.816</td><td class="sb">0.476</td><td class="sb">0.541</td><td>0.450</td><td class="sb">0.609</td></tr>
+      <tr class=""><td>R-KV</td><td>0.857</td><td>0.638</td><td class="sb">0.613</td><td>0.472</td><td>0.779</td></tr>
+      <tr class=""><td>VaSE</td><td class="sb">0.868</td><td class="sb">0.597</td><td class="bb">0.680</td><td class="bb">0.524</td><td>0.797</td></tr>
+      <tr class=""><td>TriAttention</td><td>0.887</td><td class="bb">0.683</td><td>0.677</td><td>0.508</td><td class="bb">0.834</td></tr>
+      <tr class="ours"><td>Random Attention (ours)</td><td class="bb">0.891</td><td class="bb">0.683</td><td>0.664</td><td>0.509</td><td>0.806</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption>The main grid: accuracy at each task's ~4&times; compression (LCB ~3&times;);
+    K is the per-head KV budget. <b>Bold</b>: best eviction method per column;
+    <span class="sb">greyed</span>: significantly below Random Attention (paired clustered
+    bootstrap + sign test, 95%). AIME pools 2025 and 2026; every number is the mean over
+    independently sampled runs.</figcaption>
   </figure>
   <p>Pushing compression harder does not change the ordering. From 2&times; to 16&times;, on both
   model families, Random Attention stays tied with TriAttention while the gap from both to VaSE
