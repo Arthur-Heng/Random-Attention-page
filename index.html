@@ -125,65 +125,130 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
 </div>
 
 <figure class="diagram" aria-label="Score-based eviction versus Random Attention">
-<svg viewBox="0 0 1160 330" role="img">
+<svg viewBox="0 0 1160 336" role="img">
   <!-- ===================== LEFT: score-based ===================== -->
   <text x="45" y="30" font-size="19" font-weight="700" fill="var(--ink)" font-family="var(--serif)">Score-based eviction</text>
   <text x="45" y="52" font-size="13.5" fill="var(--muted)">H2O &middot; SnapKV &middot; R-KV &middot; VaSE &middot; TriAttention</text>
-
-  <!-- scoring pass box -->
-  <rect x="150" y="72" width="266" height="46" rx="8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
-  <text x="283" y="91" font-size="13.5" font-weight="700" fill="var(--blue)" text-anchor="middle">scoring pass, every eviction</text>
-  <text x="283" y="108" font-size="12" fill="var(--muted)" text-anchor="middle">attention stats &middot; value norms &middot; key statistics</text>
-  <line x1="215" y1="118" x2="215" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
-  <line x1="283" y1="118" x2="283" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
-  <line x1="351" y1="118" x2="351" y2="146" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
   <defs>
     <marker id="arr" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L8,4 L0,8 z" fill="var(--blue)"/>
     </marker>
-    <marker id="arrR" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L8,4 L0,8 z" fill="var(--red)"/>
-    </marker>
   </defs>
-
-  <!-- cache row: 4 prompt + 10 generated, x = 45 + i*34, w=30 h=34 y=152 -->
-  <!-- prompt cells: kept idx0,2 / EVICTED idx1,3 -->
-  <rect x="45"  y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".85"/>
-  <rect x="79"  y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="94"  y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-  <rect x="113" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".55"/>
-  <rect x="147" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="162" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-  <!-- generated cells, heat-shaded by score; ~half evicted -->
-  <rect x="181" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".35"/>
-  <rect x="215" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="230" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-  <rect x="249" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".75"/>
-  <rect x="283" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".25"/>
-  <rect x="317" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="332" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-  <rect x="351" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".6"/>
-  <rect x="385" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="400" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-  <rect x="419" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".9"/>
-  <rect x="453" y="152" width="30" height="34" rx="5" fill="var(--blue)" opacity=".4"/>
-  <rect x="487" y="152" width="30" height="34" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text x="502" y="174" font-size="14" fill="var(--muted)" text-anchor="middle">&#10005;</text>
-
-  <!-- group labels under row -->
-  <path d="M45 196 v6 h132 v-6" fill="none" stroke="var(--muted)" stroke-width="1.1"/>
-  <text x="111" y="218" font-size="12.5" fill="var(--muted)" text-anchor="middle">prompt (the question)</text>
-  <path d="M181 196 v6 h336 v-6" fill="none" stroke="var(--muted)" stroke-width="1.1"/>
-  <text x="349" y="218" font-size="12.5" fill="var(--muted)" text-anchor="middle">generated reasoning trace &middot; kept if score in top-K</text>
-
-  <!-- callout -->
-  <text x="45" y="253" font-size="13.5" font-weight="600" fill="var(--red)">nothing pins the question &mdash; low-scoring prompt</text>
-  <text x="45" y="271" font-size="13.5" font-weight="600" fill="var(--red)">tokens are evicted, and they cannot be re-derived</text>
-  <line x1="112" y1="238" x2="96" y2="192" stroke="var(--red)" stroke-width="1.2" marker-end="url(#arrR)"/>
-  <text x="45" y="305" font-size="13" fill="var(--muted)">cost: score every cached token at every eviction event</text>
+  <path d="M45 80 v-6 h30 v6" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <text x="60" y="66" font-size="12.5" font-weight="700" fill="var(--blue)" text-anchor="middle">sink</text>
+  <path d="M79 80 v-6 h438 v6" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+  <text x="298" y="66" font-size="12.5" font-weight="700" fill="var(--muted)" text-anchor="middle">everything else competes &mdash; top-K scores kept, per head</text>
+  <rect x="45" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="79" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <text x="94" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <rect x="113" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="128" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="120" y1="113" x2="136" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="147" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="162" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
+  <line x1="154" y1="113" x2="170" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="181" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="196" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <rect x="215" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="230" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
+  <line x1="222" y1="113" x2="238" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="249" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="264" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <rect x="283" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="298" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <rect x="317" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="332" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="324" y1="113" x2="340" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="351" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="366" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <rect x="385" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="400" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <rect x="419" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="434" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <rect x="453" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="468" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
+  <line x1="460" y1="113" x2="476" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="487" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="502" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <text x="525" y="111" font-size="12.5" fill="var(--muted)">head 1</text>
+  <rect x="45" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="79" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="94" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
+  <line x1="86" y1="151" x2="102" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="113" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <text x="128" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <rect x="147" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="162" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="154" y1="151" x2="170" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="181" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="196" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <rect x="215" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="230" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <rect x="249" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="264" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="256" y1="151" x2="272" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="283" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="298" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <rect x="317" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="332" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <rect x="351" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="366" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
+  <line x1="358" y1="151" x2="374" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="385" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="400" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <rect x="419" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="434" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
+  <line x1="426" y1="151" x2="442" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="453" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="468" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <rect x="487" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="502" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="525" y="149" font-size="12.5" fill="var(--muted)">head 2</text>
+  <rect x="45" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <rect x="79" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="94" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
+  <line x1="86" y1="189" x2="102" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="113" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <text x="128" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <rect x="147" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
+  <text x="162" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <rect x="181" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="196" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <rect x="215" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="230" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <rect x="249" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="264" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
+  <line x1="256" y1="189" x2="272" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="283" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="298" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="290" y1="189" x2="306" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="317" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="332" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <rect x="351" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="366" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <rect x="385" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="400" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
+  <line x1="392" y1="189" x2="408" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="419" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="434" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <rect x="453" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="468" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
+  <line x1="460" y1="189" x2="476" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
+  <rect x="487" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
+  <text x="502" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="525" y="187" font-size="12.5" fill="var(--muted)">head 3</text>
+  <rect x="45" y="218" width="336" height="36" rx="8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <text x="213" y="234" font-size="13" font-weight="700" fill="var(--blue)" text-anchor="middle">scoring pass, at every eviction</text>
+  <text x="213" y="248" font-size="11.5" fill="var(--muted)" text-anchor="middle">attention stats &middot; value norms &middot; key statistics</text>
+  <line x1="115" y1="218" x2="115" y2="202" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <line x1="213" y1="218" x2="213" y2="202" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <line x1="311" y1="218" x2="311" y2="202" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#arr)"/>
+  <text x="45" y="283" font-size="13.5" font-weight="600" fill="var(--red)">the question itself competes by score: TriAttention pins the</text>
+  <text x="45" y="301" font-size="13.5" font-weight="600" fill="var(--red)">whole prompt, the others keep only the sink tokens by default</text>
+  <text x="45" y="322" font-size="13" fill="var(--muted)">cost: score every cached token at every eviction event</text>
 
   <!-- divider -->
-  <line x1="578" y1="24" x2="578" y2="306" stroke="var(--line)" stroke-width="1.4"/>
+  <line x1="578" y1="24" x2="578" y2="322" stroke="var(--line)" stroke-width="1.4"/>
 
   <!-- ===================== RIGHT: Random Attention ===================== -->
   <text x="635" y="30" font-size="19" font-weight="700" fill="var(--red)" font-family="var(--serif)">Random Attention (ours)</text>
@@ -248,13 +313,15 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
   <!-- callouts -->
   <text x="635" y="253" font-size="13.5" font-weight="600" fill="var(--ink)">each head keeps a different random subset, so a copy of</text>
   <text x="635" y="271" font-size="13.5" font-weight="600" fill="var(--ink)">what the model still needs survives in some head</text>
-  <text x="635" y="305" font-size="13" fill="var(--muted)">cost: none &mdash; no scoring pass, just the compaction itself</text>
+  <text x="635" y="322" font-size="13" fill="var(--muted)">cost: none &mdash; no scoring pass, just the compaction itself</text>
 </svg>
-<figcaption><b>Prior evictors vs. Random Attention.</b> Left: every existing method runs a scoring
-pass and keeps the top-K tokens; the question itself competes for survival, and once a prompt token
-is evicted it cannot be re-derived. Right: Random Attention pins the prompt and samples the
-generated trace uniformly at random, independently in each KV head — no scores are ever computed,
-and the per-head draws leave redundant copies of the trace in the cache.</figcaption>
+<figcaption><b>Prior evictors vs. Random Attention.</b> Left: every existing method runs a
+scoring pass and keeps the top-K scored tokens in each head (struck-through cells are evicted).
+Only the sink tokens are kept by rule; the rest of the question competes by score — TriAttention
+pins the whole prompt, but SnapKV, R-KV and VaSE leave it to the score, and an evicted prompt
+token cannot be re-derived. Right: Random Attention pins the prompt and samples the generated
+trace uniformly at random, independently in each KV head — no scores are ever computed, and the
+per-head draws leave redundant copies of the trace in the cache.</figcaption>
 </figure>
 
 <section class="prose" id="result">
