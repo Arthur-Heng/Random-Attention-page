@@ -101,6 +101,8 @@ pre{background:var(--codebg);color:var(--codeink);border-radius:10px;padding:18p
 code{font-family:var(--mono)}
 p code, li code{background:var(--panel);padding:1px 6px;border-radius:5px;font-size:.92em}
 .comment{color:#7d97a8}
+.refs{font-size:15px;color:var(--muted);padding-left:22px;margin:0}
+.refs li{margin-bottom:7px}
 footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
        color:var(--muted);font-size:14.5px;text-align:center}
 @media (max-width:640px){
@@ -522,6 +524,24 @@ scripts/grade_cell.sh Qwen3-4B math</code></pre>
   journal = {arXiv preprint},
   year    = {2026}
 }</code></pre>
+</section>
+
+<section class="prose" id="references">
+  <p class="eyebrow">References</p>
+  <h2>Key references</h2>
+  <ol class="refs">
+    <li>Zhang et al. "H2O: Heavy-Hitter Oracle for Efficient Generative Inference of Large Language Models." <i>NeurIPS</i> 2023.</li>
+    <li>Li et al. "SnapKV: LLM Knows What You are Looking for Before Generation." <i>NeurIPS</i> 2024.</li>
+    <li>Cai et al. "R-KV: Redundancy-aware KV Cache Compression for Reasoning Models." <i>NeurIPS</i> 2025.</li>
+    <li>Chang et al. "Value-Aware Stochastic KV Cache Eviction for Reasoning Models (VaSE)." <a href="https://arxiv.org/abs/2606.03928">arXiv:2606.03928</a>.</li>
+    <li>Mao et al. "TriAttention: Efficient Long Reasoning with Trigonometric KV Compression." <i>ICML</i> 2026.</li>
+    <li>Xiao et al. "Efficient Streaming Language Models with Attention Sinks." <i>ICLR</i> 2024.</li>
+    <li>Kwon et al. "Efficient Memory Management for Large Language Model Serving with PagedAttention." <i>SOSP</i> 2023.</li>
+    <li>Wang. "How Much Cache Does Reasoning Need? Depth-Cache Tradeoffs in KV-Compressed Transformers." <a href="https://arxiv.org/abs/2604.17935">arXiv:2604.17935</a>.</li>
+    <li>Jain et al. "LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code." <i>ICLR</i> 2025.</li>
+    <li>Yang et al. "Qwen3 Technical Report." <a href="https://arxiv.org/abs/2505.09388">arXiv:2505.09388</a>.</li>
+    <li>Abdin et al. "Phi-4-reasoning Technical Report." <a href="https://arxiv.org/abs/2504.21318">arXiv:2504.21318</a>.</li>
+  </ol>
 </section>
 
 </div>
