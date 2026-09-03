@@ -277,13 +277,16 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
 <section class="prose" id="prompt">
   <p class="eyebrow">Mechanism I</p>
   <h2>The prompt is the fragile part of the cache</h2>
-  <p>Prior evictors differ in whether the question survives: some pin the prompt by rule, others
-  let their score decide. When we give <em>every</em> method the same rule — keep the prompt,
-  score only the generated trace — most of the gap between them disappears, and each method gains
-  almost exactly as much as its score had been losing of the question. SnapKV, the weakest
-  unprotected baseline, gains up to <b>+35 accuracy points</b> from prompt protection alone.</p>
-  <p class="pull">What separates eviction methods is mostly what they protect,
-  not how they rank the rest.</p>
+  <p>Methods disagree about the prompt: TriAttention keeps the whole input by default, while
+  SnapKV, R-KV and VaSE keep only sink tokens and leave every slot to the score. Giving every
+  method the same rule — keep the prompt, score only the generated trace — separates the score
+  from the protection, and the rule pays each method almost exactly as much of the question as its
+  score had been losing: SnapKV, whose score retains the least of the prompt, gains up to
+  <b>+22.5 points</b>; R-KV, which already retains the most, never gains more than 1.9. Once every
+  method keeps the prompt, the three baselines land within 2.2 points of one another in every
+  setting — and every learned score still trails the policy that ranks nothing.</p>
+  <p class="pull">Losing the prompt is catastrophic; cutting the trace at random is not.
+  That is what makes the prompt the fragile part of the cache.</p>
 </section>
 
 <section class="prose" id="redundancy">
@@ -292,10 +295,13 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
   <p>Why does random eviction of the trace not hurt? Because the trace is stored redundantly at two
   levels. In the <em>text</em>: the model restates the intermediates it still needs as it works, so
   a needed value usually has a recent copy. Across <em>attention heads</em>: every head holds its
-  own copy of every token, and eviction decides per head which copies die. A planted-fact probe
-  makes the second level visible: a fact surviving in a single KV head is almost never retrieved
-  (3% of the time), while the same fact surviving in several heads is retrieved almost always
-  (99% with all heads) — and the <em>shape</em> of the surviving copies barely matters.</p>
+  own copy of every token, and eviction decides per head which copies die — a token is only lost
+  when <em>every</em> head happens to drop it. A planted-fact probe makes the second level visible:
+  we insert a synthetic fact into real reasoning traces 1,536 tokens before a question that needs
+  it (15 eviction rounds pass in between) and control which KV heads keep it. A fact surviving in
+  a single head is almost never retrieved (3%), while the same fact surviving in several heads is
+  retrieved almost always (99% with all eight) — and the <em>shape</em> of the surviving copies
+  barely matters.</p>
   <figure>
     <div class="fig"><img src="assets/fig_mechanism.png" alt="Planted-fact probe: copies in different heads pool"></div>
     <figcaption>The planted-fact probe. <b>(a)</b> Retrieval accuracy grows with the number of heads
@@ -307,31 +313,43 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
 
 <section class="prose" id="boundary">
   <p class="eyebrow">The boundary</p>
-  <h2>Where a selection signal still matters</h2>
-  <p>The redundancy argument predicts its own failure modes, and we map them. Push compression from
-  4&times; to 16&times; and the regime flips: on MATH500 Random Attention collapses with the context
-  while value-based selection still holds usable accuracy. And on code reasoning, prompts are so
-  long that protecting them consumes most of the budget — the one setting where a baseline
-  (TriAttention) is significantly ahead. Selection earns its cost exactly where rehearsal and
-  redundancy run out: extreme budgets, and the rare fact stated once and never restated.</p>
+  <h2>What is left for a selection signal</h2>
+  <p>Tightening the budget does not rescue selection. From 2&times; to 16&times; compression, on
+  both model families, Random Attention stays tied with TriAttention while the gap from both to
+  VaSE opens — compression pressure widens the gap in the random policy's favour. What a signal
+  genuinely still buys is the case redundancy cannot cover: <b>a fact stated once, never restated,
+  and needed much later</b>. In a passcode probe (announced once, 57 eviction rounds before the
+  question), Random Attention never reproduces it, while R-KV — whose score accumulates attention
+  over the whole history — finds it 84% of the time. Needle-finding is real selection skill, but it
+  neither implies nor follows from aggregate strength: R-KV, the best needle-finder, leads only one
+  column of the main grid, and TriAttention, the strongest baseline there, recovers almost nothing.
+  On real traces the case is rare, because the model keeps restating what it is still using. The
+  other honest cost is code reasoning: prompts average 557 tokens (six times MATH500's), so pinning
+  them consumes a large share of the budget — the setting behind the single significant baseline
+  win.</p>
   <figure>
     <div class="fig"><img src="assets/fig_compression.png" alt="Accuracy vs compression factor, 2x to 16x"></div>
-    <figcaption>Accuracy vs. compression on Qwen3-4B and Phi-4-reasoning. The methods are
-    indistinguishable at 2&ndash;4&times;; the spread opens only at 8&ndash;16&times;.</figcaption>
+    <figcaption>Accuracy from 2&times; to 16&times; compression on Qwen3-4B and Phi-4-reasoning;
+    dashed lines mark full attention. At 2&times; every method sits near full attention; as the
+    budget tightens, Random Attention stays tied with TriAttention while VaSE falls away. The
+    &#10005; marks budgets smaller than the prompt itself, which Random Attention scopes out.</figcaption>
   </figure>
 </section>
 
 <section class="prose" id="serving">
   <p class="eyebrow">Serving</p>
   <h2>No scoring pass means real speed</h2>
-  <p>Random Attention needs no calibration, no tuning, and no per-step scoring. Integrated into
-  vLLM, it serves 32&ndash;43% more tokens per second than the strongest baseline at 32k-token
-  generations, and up to 28.8&times; the throughput of full attention at the tightest budget
-  (K=1024) — while matching the baseline's accuracy. It is also the baseline any new selection
-  signal has to beat, at matched budget and matched prompt protection.</p>
+  <p>Random Attention needs no calibration, no tuning, and no per-step scoring. Under paged vLLM
+  serving it delivers 1.6&ndash;2.7&times; full-attention throughput across the four models —
+  <b>32&ndash;43% more than TriAttention on the same kernels</b> at 32k-token generations, a margin
+  that holds at capacity. In an iso-memory benchmark (largest batch fitting one H200), the
+  compressed cache fits 109&ndash;200 concurrent sequences where full attention fits 20&ndash;28,
+  and Random Attention reaches 10&times; full-attention throughput at K=3072 and 28.8&times; at
+  MATH500's tighter K=1024. It is also the baseline any new selection signal has to beat, at
+  matched budget and matched prompt protection.</p>
   <div class="statrow">
     <div class="stat"><div class="n">+32&ndash;43%</div><div class="l">tokens/s over the strongest baseline (vLLM, 32k generations)</div></div>
-    <div class="stat"><div class="n">28.8&times;</div><div class="l">peak throughput multiple over full attention (K=1024)</div></div>
+    <div class="stat"><div class="n">28.8&times;</div><div class="l">full-attention multiple, iso-memory benchmark (K=1024)</div></div>
     <div class="stat"><div class="n">0</div><div class="l">scores computed, calibration passes, tuned hyperparameters</div></div>
   </div>
 </section>
