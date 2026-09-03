@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Random Attention</title>
 <meta name="description" content="Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning — keep the prompt, evict the rest at random. Accuracy matches learned evictors; serving is 32–43% faster.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127922;</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%8E%B2</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -161,7 +161,7 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
   <text x="298" y="66" font-size="12.5" font-weight="700" fill="var(--muted)" text-anchor="middle">everything else competes &mdash; top-K scores kept, per head</text>
   <rect x="45" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
   <rect x="79" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
-  <text x="94" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="94" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <rect x="113" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="128" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="120" y1="113" x2="136" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
@@ -169,74 +169,74 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
   <text x="162" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
   <line x1="154" y1="113" x2="170" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="181" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="196" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <text x="196" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.8</text>
   <rect x="215" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="230" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
   <line x1="222" y1="113" x2="238" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="249" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="264" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <text x="264" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.7</text>
   <rect x="283" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="298" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="298" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.5</text>
   <rect x="317" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="332" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="324" y1="113" x2="340" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="351" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="366" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <text x="366" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.9</text>
   <rect x="385" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="400" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <text x="400" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.4</text>
   <rect x="419" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="434" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="434" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <rect x="453" y="92" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="468" y="111" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
   <line x1="460" y1="113" x2="476" y2="99" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="487" y="92" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="502" y="111" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <text x="502" y="111" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.7</text>
   <text x="525" y="111" font-size="12.5" fill="var(--muted)">head 1</text>
   <rect x="45" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
   <rect x="79" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="94" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
   <line x1="86" y1="151" x2="102" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="113" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
-  <text x="128" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="128" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.5</text>
   <rect x="147" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="162" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="154" y1="151" x2="170" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="181" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="196" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <text x="196" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.4</text>
   <rect x="215" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="230" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <text x="230" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.7</text>
   <rect x="249" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="264" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="256" y1="151" x2="272" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="283" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="298" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <text x="298" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.8</text>
   <rect x="317" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="332" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="332" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <rect x="351" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="366" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
   <line x1="358" y1="151" x2="374" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="385" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="400" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <text x="400" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.9</text>
   <rect x="419" y="130" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="434" y="149" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
   <line x1="426" y1="151" x2="442" y2="137" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="453" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="468" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="468" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.5</text>
   <rect x="487" y="130" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="502" y="149" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="502" y="149" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <text x="525" y="149" font-size="12.5" fill="var(--muted)">head 2</text>
   <rect x="45" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
   <rect x="79" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="94" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.1</text>
   <line x1="86" y1="189" x2="102" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="113" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
-  <text x="128" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.4</text>
+  <text x="128" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.4</text>
   <rect x="147" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".85"/>
-  <text x="162" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="162" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <rect x="181" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="196" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.7</text>
+  <text x="196" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.7</text>
   <rect x="215" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="230" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="230" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.5</text>
   <rect x="249" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="264" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
   <line x1="256" y1="189" x2="272" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
@@ -244,19 +244,19 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
   <text x="298" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="290" y1="189" x2="306" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="317" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="332" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.8</text>
+  <text x="332" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.8</text>
   <rect x="351" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="366" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.6</text>
+  <text x="366" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.6</text>
   <rect x="385" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="400" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.3</text>
   <line x1="392" y1="189" x2="408" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="419" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="434" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.9</text>
+  <text x="434" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.9</text>
   <rect x="453" y="168" width="30" height="28" rx="5" fill="none" stroke="var(--cellghost)" stroke-width="1.3" stroke-dasharray="4 3"/>
   <text x="468" y="187" font-size="11" fill="var(--muted)" text-anchor="middle">.2</text>
   <line x1="460" y1="189" x2="476" y2="175" stroke="var(--muted)" stroke-width="1.1"/>
   <rect x="487" y="168" width="30" height="28" rx="5" fill="var(--blue)" opacity=".55"/>
-  <text x="502" y="187" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">.5</text>
+  <text x="502" y="187" font-size="11" font-weight="600" fill="var(--bg)" text-anchor="middle">.5</text>
   <text x="525" y="187" font-size="12.5" fill="var(--muted)">head 3</text>
   <rect x="45" y="218" width="336" height="36" rx="8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
   <text x="213" y="234" font-size="13" font-weight="700" fill="var(--blue)" text-anchor="middle">scoring pass, at every eviction</text>
@@ -415,8 +415,8 @@ per-head draws leave redundant copies of the trace in the cache.</figcaption>
   <p>Methods disagree about the prompt: TriAttention keeps the whole input by default, while
   SnapKV, R-KV and VaSE keep only sink tokens and leave every slot to the score. Giving every
   method the same rule — keep the prompt, score only the generated trace — separates the score
-  from the protection, and the rule pays each method almost exactly as much of the question as its
-  score had been losing: SnapKV, whose score retains the least of the prompt, gains up to
+  from the protection, and the rule pays each method according to how much of the question its score
+  was losing: SnapKV, whose score retains the least of the prompt, gains up to
   <b>+22.5 points</b>; R-KV, which already retains the most, never gains more than 1.9. Once every
   method keeps the prompt, the three baselines land within 2.2 points of one another in every
   setting — and every learned score still trails the policy that ranks nothing.</p>
@@ -469,7 +469,7 @@ per-head draws leave redundant copies of the trace in the cache.</figcaption>
   <b>32&ndash;43% more than TriAttention on the same kernels</b> at 32k-token generations, a margin
   that holds at capacity. In an iso-memory benchmark (largest batch fitting one H200), the
   compressed cache fits 109&ndash;200 concurrent sequences where full attention fits 20&ndash;28,
-  and Random Attention reaches 10&times; full-attention throughput at K=3072 and 28.8&times; at
+  and Random Attention reaches up to 10&times; full-attention throughput at K=3072 and 28.8&times; at
   MATH500's tighter K=1024. It is also the baseline any new selection signal has to beat, at
   matched budget and matched prompt protection.</p>
   <div class="statrow">
@@ -513,7 +513,7 @@ bash setup.sh &amp;&amp; . env.sh
 <span class="comment"># one (model, task, method, budget) accuracy cell</span>
 scripts/run_cell.sh Qwen3-4B math random_pp   <span class="comment"># Random Attention, K defaults to the ~4x point</span>
 scripts/run_cell.sh Qwen3-4B math triattn     <span class="comment"># strongest baseline, per-model calibration</span>
-scripts/grade_cell.sh Qwen3-4B math</code></pre>
+scripts/grade_cell.sh Qwen3-4B math_K1024 random_pp,triattn_ph_memofix</code></pre>
 </section>
 
 <section class="prose" id="bibtex">
@@ -538,7 +538,7 @@ scripts/grade_cell.sh Qwen3-4B math</code></pre>
     <li>Mao et al. "TriAttention: Efficient Long Reasoning with Trigonometric KV Compression." <i>ICML</i> 2026.</li>
     <li>Xiao et al. "Efficient Streaming Language Models with Attention Sinks." <i>ICLR</i> 2024.</li>
     <li>Kwon et al. "Efficient Memory Management for Large Language Model Serving with PagedAttention." <i>SOSP</i> 2023.</li>
-    <li>Wang. "How Much Cache Does Reasoning Need? Depth-Cache Tradeoffs in KV-Compressed Transformers." <a href="https://arxiv.org/abs/2604.17935">arXiv:2604.17935</a>.</li>
+    <li>X. Wang. "How Much Cache Does Reasoning Need? Depth-Cache Tradeoffs in KV-Compressed Transformers." <a href="https://arxiv.org/abs/2604.17935">arXiv:2604.17935</a>.</li>
   </ol>
 </section>
 
