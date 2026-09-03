@@ -140,8 +140,11 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
         — and is significantly ahead in 31 of 60 main-table comparisons, behind in one.</li>
     <li>It never runs a scoring pass, so in vLLM serving it delivers
         <b>32&ndash;43% more tokens per second</b> than the strongest baseline at 32k-token generations.</li>
-    <li>Why it works: <b>the prompt is the fragile part of the cache</b>, and
-        <b>the reasoning trace protects itself</b> — restated in the text, copied across heads.</li>
+    <li>Why it works: <b>the prompt is fragile</b> — the question is stated once and cannot be
+        recovered if evicted, so it must be kept. <b>The reasoning trace survives random cuts
+        through redundancy</b>: the model keeps restating what it still needs in the text, and
+        every KV head holds its own copy of the trace, so after the random draw a copy of what
+        matters almost always survives in some head.</li>
   </ul>
 </div>
 
