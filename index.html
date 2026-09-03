@@ -112,7 +112,7 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
 
 <div class="tldr">
   <b class="k">TL;DR</b> — Every KV cache eviction method scores cached tokens and keeps the top-K.
-  We replace the score with a coin flip: <b>keep the prompt, evict the rest uniformly at random
+  We drop the score entirely: <b>keep the prompt, evict the rest uniformly at random
   within each attention head.</b>
   <ul>
     <li>Across four reasoning models and six tasks, it <b>matches the strongest prior evictor</b>
@@ -259,7 +259,7 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
 
 <section class="prose" id="result">
   <p class="eyebrow">The result</p>
-  <h2>A coin flip matches five generations of selection signals</h2>
+  <h2>The selection signal contributes almost nothing</h2>
   <p>We evaluate at a roughly 4&times;-compressed cache budget on MATH500, GPQA-Diamond, AIME 2025,
   AIME 2026, HMMT and LiveCodeBench, on Qwen3-4B/14B/32B and Phi-4-reasoning, with matched budgets
   and paired significance tests throughout. Random Attention matches the strongest prior evictor on
@@ -271,6 +271,16 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
     VaSE and TriAttention at the same cache budget, with full attention dashed.
     <b>(b)</b> vLLM serving throughput at 32k-token generations: labels give the multiple over paged
     full attention and the margin over TriAttention.</figcaption>
+  </figure>
+  <p>Pushing compression harder does not change the ordering. From 2&times; to 16&times;, on both
+  model families, Random Attention stays tied with TriAttention while the gap from both to VaSE
+  opens — compression pressure widens the gap in the random policy's favour.</p>
+  <figure>
+    <div class="fig"><img src="assets/fig_compression.png" alt="Accuracy vs compression factor, 2x to 16x"></div>
+    <figcaption>Accuracy from 2&times; to 16&times; compression on Qwen3-4B and Phi-4-reasoning;
+    dashed lines mark full attention. At 2&times; every method sits near full attention; as the
+    budget tightens, Random Attention stays tied with TriAttention while VaSE falls away. The
+    &#10005; marks budgets smaller than the prompt itself, which Random Attention scopes out.</figcaption>
   </figure>
 </section>
 
@@ -314,26 +324,16 @@ and the per-head draws leave redundant copies of the trace in the cache.</figcap
 <section class="prose" id="boundary">
   <p class="eyebrow">The boundary</p>
   <h2>What is left for a selection signal</h2>
-  <p>Tightening the budget does not rescue selection. From 2&times; to 16&times; compression, on
-  both model families, Random Attention stays tied with TriAttention while the gap from both to
-  VaSE opens — compression pressure widens the gap in the random policy's favour. What a signal
-  genuinely still buys is the case redundancy cannot cover: <b>a fact stated once, never restated,
-  and needed much later</b>. In a passcode probe (announced once, 57 eviction rounds before the
-  question), Random Attention never reproduces it, while R-KV — whose score accumulates attention
-  over the whole history — finds it 84% of the time. Needle-finding is real selection skill, but it
-  neither implies nor follows from aggregate strength: R-KV, the best needle-finder, leads only one
-  column of the main grid, and TriAttention, the strongest baseline there, recovers almost nothing.
-  On real traces the case is rare, because the model keeps restating what it is still using. The
-  other honest cost is code reasoning: prompts average 557 tokens (six times MATH500's), so pinning
-  them consumes a large share of the budget — the setting behind the single significant baseline
-  win.</p>
-  <figure>
-    <div class="fig"><img src="assets/fig_compression.png" alt="Accuracy vs compression factor, 2x to 16x"></div>
-    <figcaption>Accuracy from 2&times; to 16&times; compression on Qwen3-4B and Phi-4-reasoning;
-    dashed lines mark full attention. At 2&times; every method sits near full attention; as the
-    budget tightens, Random Attention stays tied with TriAttention while VaSE falls away. The
-    &#10005; marks budgets smaller than the prompt itself, which Random Attention scopes out.</figcaption>
-  </figure>
+  <p>The one case a signal-free policy cannot cover is <b>a fact stated once, never restated, and
+  needed much later</b> — the case redundancy cannot reach. In a passcode probe (announced once, 57
+  eviction rounds before the question), Random Attention never reproduces it, while R-KV — whose
+  score accumulates attention over the whole history — finds it 84% of the time. Needle-finding is
+  real selection skill, but it neither implies nor follows from aggregate strength: R-KV, the best
+  needle-finder, leads only one column of the main grid, and TriAttention, the strongest baseline
+  there, recovers almost nothing. On real traces the case is rare, because the model keeps
+  restating what it is still using. The other honest cost is code reasoning: prompts average 557
+  tokens (six times MATH500's), so pinning them consumes a large share of the budget — the setting
+  behind the single significant baseline win.</p>
 </section>
 
 <section class="prose" id="serving">
