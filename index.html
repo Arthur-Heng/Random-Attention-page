@@ -72,6 +72,7 @@ figure{margin:26px 0 8px}
 .fig{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow-x:auto}
 .fig img{display:block;max-width:100%;min-width:520px;margin:0 auto}
 figcaption{font-size:14.5px;color:var(--muted);line-height:1.55;margin:10px auto 0;max-width:760px}
+figcaption a{color:var(--blue);white-space:nowrap}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
 table.mt{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;
          font-variant-numeric:tabular-nums;line-height:1.45}
@@ -343,7 +344,9 @@ Only the sink tokens are kept by rule; the rest of the question competes by scor
 pins the whole prompt, but SnapKV, R-KV and VaSE leave it to the score, and an evicted prompt
 token cannot be re-derived. Right: Random Attention pins the prompt and samples the generated
 trace uniformly at random, independently in each KV head — no scores are ever computed, and the
-per-head draws leave redundant copies of the trace in the cache.</figcaption>
+per-head draws leave redundant copies of the trace in the cache.
+<a href="assets/random_attention_diagram.png" download>Download this figure (PNG)</a> &middot;
+<a href="assets/random_attention_diagram.pdf" download>PDF</a></figcaption>
 </figure>
 
 <section class="prose" id="result">
