@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Standalone raster of the project page's explainer diagram (score-based eviction vs
-Random Attention), laid out for social posts: short labels, 2:1, readable at feed size.
+Random Attention), laid out for social posts: the two panels and nothing else — no title,
+no result strip, no links, since the thread around it carries those.
 
     python figures/make_diagram.py          # -> assets/random_attention_diagram.png (+ .pdf)
 
@@ -29,10 +30,10 @@ LEFT = [
 # right panel: which trace tokens each head's random draw kept (same budget, 9 cells)
 RIGHT = [{0, 2, 3, 6, 9}, {1, 2, 5, 7, 8}, {0, 4, 5, 6, 8}]
 
-fig = plt.figure(figsize=(11.88, 5.42), dpi=200, facecolor=BG)
+fig = plt.figure(figsize=(11.88, 3.62), dpi=200, facecolor=BG)
 ax = fig.add_axes([0, 0, 1, 1], facecolor=BG)
 ax.set_xlim(-6, 1182)
-ax.set_ylim(542, 0)          # y grows downwards, like the SVG
+ax.set_ylim(422, 60)          # y grows downwards, like the SVG
 ax.axis("off")
 
 
@@ -62,12 +63,6 @@ def panel_head(x, title, subtitle, color):
     ax.text(x, 96, title, fontsize=15, fontweight="bold", color=color, family="serif")
     ax.text(x, 118, subtitle, fontsize=9.5, color=MUTED)
 
-
-# ----------------------------------------------------------------- header
-fig.text(.5, .945, "Random Attention", ha="center", va="center",
-         fontsize=19, fontweight="bold", color=INK, family="serif")
-fig.text(.5, .893, "every evictor scores the cache and keeps the top-K — we keep the prompt "
-                   "and drop the score", ha="center", va="center", fontsize=10.5, color=MUTED)
 
 # ----------------------------------------------------------------- left panel
 LX = 45
@@ -119,14 +114,6 @@ for hi, (y, keep) in enumerate(zip(ROWS, RIGHT)):
 ax.text(RX, 352, "every head keeps a different subset", fontsize=10.5, fontweight="bold", color=INK)
 ax.text(RX, 374, "so some copy of what the model still needs survives", fontsize=9.5, color=MUTED)
 ax.text(RX, 404, "cost: none — no scoring pass at all", fontsize=9.5, color=MUTED)
-
-# ----------------------------------------------------------------- footer
-ax.plot([45, 1115], [446, 446], color=LINE, lw=1.1)
-for x, big, small in [(45, "matches the strongest evictor", "4 models × 6 reasoning tasks"),
-                      (435, "+32–43% tokens/s", "vLLM, 32k-token generations"),
-                      (800, "arxiv.org/abs/2609.03430", "github.com/SalesforceAIResearch/Random-Attention")]:
-    ax.text(x, 486, big, fontsize=11, fontweight="bold", color=RED if x < 800 else BLUE)
-    ax.text(x, 508, small, fontsize=9, color=MUTED)
 
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
 fig.savefig(os.path.join(out, "random_attention_diagram.png"), facecolor=BG)
