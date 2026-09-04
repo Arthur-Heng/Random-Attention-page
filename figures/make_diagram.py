@@ -29,10 +29,10 @@ LEFT = [
 # right panel: which trace tokens each head's random draw kept (same budget, 9 cells)
 RIGHT = [{0, 2, 3, 6, 9}, {1, 2, 5, 7, 8}, {0, 4, 5, 6, 8}]
 
-fig = plt.figure(figsize=(11.6, 5.8), dpi=200, facecolor=BG)
+fig = plt.figure(figsize=(11.88, 5.42), dpi=200, facecolor=BG)
 ax = fig.add_axes([0, 0, 1, 1], facecolor=BG)
 ax.set_xlim(-6, 1182)
-ax.set_ylim(580, 0)          # y grows downwards, like the SVG
+ax.set_ylim(542, 0)          # y grows downwards, like the SVG
 ax.axis("off")
 
 
@@ -64,9 +64,9 @@ def panel_head(x, title, subtitle, color):
 
 
 # ----------------------------------------------------------------- header
-fig.text(.5, .955, "Random Attention", ha="center", va="center",
+fig.text(.5, .945, "Random Attention", ha="center", va="center",
          fontsize=19, fontweight="bold", color=INK, family="serif")
-fig.text(.5, .906, "every evictor scores the cache and keeps the top-K — we keep the prompt "
+fig.text(.5, .893, "every evictor scores the cache and keeps the top-K — we keep the prompt "
                    "and drop the score", ha="center", va="center", fontsize=10.5, color=MUTED)
 
 # ----------------------------------------------------------------- left panel
