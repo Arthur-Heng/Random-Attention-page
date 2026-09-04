@@ -56,7 +56,6 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,5.4vw,52px);
 .btn:hover{background:var(--blue);color:var(--bg);border-bottom-color:transparent}
 .btn.solid{background:var(--blue);color:var(--bg)}
 .btn.solid:hover{opacity:.88}
-.btn.soon{border-color:var(--line);color:var(--muted);cursor:default;pointer-events:none}
 .eyebrow{font-size:17px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
          color:var(--red);margin:0 0 6px}
 section{margin:0;padding:24px 0}
@@ -123,8 +122,9 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:26px 0 44px;
   <span class="au">Silvio Savarese<sup>1</sup></span>, <span class="au">Shelby Heinecke<sup>1</sup></span>, <span class="au">Huan Wang<sup>1</sup></span></p>
   <p class="affil"><sup>1</sup>Salesforce AI Research &middot; <sup>2</sup>University of Illinois Urbana-Champaign</p>
   <div class="btns">
-    <span class="btn soon" aria-disabled="true">&#128196; arXiv (soon)</span>
-    <a class="btn solid" href="https://github.com/SalesforceAIResearch/Random-Attention">&#11088; Code</a>
+    <a class="btn solid" href="https://arxiv.org/abs/2609.03430">&#128196; arXiv</a>
+    <a class="btn" href="https://github.com/SalesforceAIResearch/Random-Attention">&#11088; Code</a>
+    <a class="btn" href="https://huggingface.co/papers/2609.03430">&#129303; HF Paper</a>
     <a class="btn" href="#bibtex">BibTeX</a>
   </div>
 </header>
@@ -521,10 +521,15 @@ scripts/grade_cell.sh Qwen3-4B math_K1024 random_pp,triattn_ph_memofix</code></p
   <p class="eyebrow">Citation</p>
   <h2>BibTeX</h2>
 <pre><code>@article{wang2026random,
-  title   = {Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning},
-  author  = {Wang, Heng and others},
-  journal = {arXiv preprint},
-  year    = {2026}
+  title         = {Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning},
+  author        = {Wang, Heng and Qiu, Jielin and Zhao, Wenting and Qian, Cheng and
+                   Yang, Liangwei and Han, Jiawei and Ji, Heng and Savarese, Silvio and
+                   Heinecke, Shelby and Wang, Huan},
+  journal       = {arXiv preprint arXiv:2609.03430},
+  year          = {2026},
+  eprint        = {2609.03430},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL}
 }</code></pre>
 </section>
 
